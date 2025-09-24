@@ -110,6 +110,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ steps.version.outputs.prerelease }}
           body: ${{ steps.changelog.outputs.notes }}
-          files: ./artifacts/*
+          files: ./artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
