@@ -15,9 +15,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            arch: x86_64
-            target: x86_64-unknown-linux-gnu
+          #- os: ubuntu-latest
+          #  arch: x86_64
+          #  target: x86_64-unknown-linux-gnu
           #- os: ubuntu-latest
           #  arch: aarch64
           #  target: aarch64-unknown-linux-gnu
@@ -27,9 +27,9 @@ jobs:
           #- os: macos-latest
           #  arch: aarch64
           #  target: aarch64-apple-darwin
-          #- os: windows-latest
-          #  arch: x86_64
-          #  target: x86_64-pc-windows-msvc
+          - os: windows-latest
+            arch: x86_64
+            target: x86_64-pc-windows-msvc
           #- os: windows-latest
           #  arch: aarch64
           #  target: aarch64-pc-windows-msvc
@@ -55,13 +55,14 @@ jobs:
           mkdir -p artifacts
           BIN_NAME=odoo_ls_server
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}-${{ matrix.target }}.exe
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}.exe
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${BIN_NAME}.pdb
           else
-            cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}-${{ matrix.target }}
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: binaries
+          name: ${{ matrix.target }}
           path: artifacts/*
