@@ -55,28 +55,24 @@ jobs:
         working-directory: server
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Package binary
+      - name: Upload binary
         shell: bash
         run: |
-          mkdir -p artifacts
-          TAG="${GITHUB_REF_NAME}"
-          echo "Tag detected: $TAG"
+          mkdir -p artifacts/${{ matrix.name }}
           BIN_NAME=odoo_ls_server
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}.exe
-            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${BIN_NAME}.pdb
-            zip -j artifacts/odoo-${{ matrix.name }}-${TAG}.zip artifacts/${BIN_NAME}.exe artifacts/${BIN_NAME}.pdb 2>/dev/null || \
-              zip -j artifacts/odoo-${{ matrix.name }}-${TAG}.zip artifacts/${BIN_NAME}.exe
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${{ matrix.name }}/
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${{ matrix.name }}/ || true
           else
-            cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}
-            zip -j artifacts/odoo-${{ matrix.name }}-${TAG}.zip artifacts/${BIN_NAME}
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${{ matrix.name }}/
           fi
+        continue-on-error: false
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}
-          path: artifacts/*
+          name: ${{ matrix.name }}
+          path: artifacts/${{ matrix.name }}/*
 
   release:
     name: Create GitHub Release
@@ -94,7 +90,7 @@ jobs:
       - name: Extract version info
         id: version
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${GITHUB_REF#refs/tags/}"
           MINOR=$(echo "$TAG" | cut -d. -f2)
           if [ $((MINOR % 2)) -eq 1 ]; then
             echo "prerelease=true" >> $GITHUB_OUTPUT
@@ -107,9 +103,18 @@ jobs:
       - name: Extract changelog entry
         id: changelog
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          # take section starting with "# [TAG]" until next "# ["
+          TAG="${GITHUB_REF#refs/tags/}"
           awk "/^# \\[$TAG\\]/ {flag=1; next} /^# \\[/ {flag=0} flag" changelog.md > RELEASE_NOTES.md
+
+      - name: Zip all artifacts
+        shell: bash
+        run: |
+          for dir in artifacts/*; do
+            [ -d "$dir" ] || continue
+            name=$(basename "$dir")
+            TAG="${GITHUB_REF_NAME}"
+            zip -j artifacts/odoo-${name}-${TAG}.zip $dir/*
+          done
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -118,6 +123,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ steps.version.outputs.prerelease }}
           body_path: RELEASE_NOTES.md
-          files: ./artifacts/**/*
+          files: ./artifacts/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
