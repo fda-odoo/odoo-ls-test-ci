@@ -17,21 +17,27 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
+            name: linux-x86_64
             target: x86_64-unknown-linux-gnu
           #- os: ubuntu-latest
           #  arch: aarch64
+          #  name: linux-aarch64
           #  target: aarch64-unknown-linux-gnu
           #- os: macos-latest
           #  arch: x86_64
+          #  name: darwin-x86_64
           #  target: x86_64-apple-darwin
           #- os: macos-latest
           #  arch: aarch64
+          #  name: darwin-aarch64
           #  target: aarch64-apple-darwin
           - os: windows-latest
             arch: x86_64
+            name: win32-x86_64
             target: x86_64-pc-windows-msvc
           #- os: windows-latest
           #  arch: aarch64
+          #  name: win32-aarch64
           #  target: aarch64-pc-windows-msvc
 
     steps:
@@ -53,12 +59,16 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts
+          TAG="${GITHUB_REF_NAME}"
           BIN_NAME=odoo_ls_server
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}.exe
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${BIN_NAME}.pdb
+            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG}}.zip artifacts/${BIN_NAME}.exe artifacts/${BIN_NAME}.pdb 2>/dev/null || \
+              zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG}}.zip artifacts/${BIN_NAME}.exe
           else
             cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}
+            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG}}.zip artifacts/${BIN_NAME}
           fi
 
       - name: Upload artifact
@@ -99,9 +109,6 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           # take section starting with "# [TAG]" until next "# ["
           awk "/^# \\[$TAG\\]/ {flag=1; next} /^# \\[/ {flag=0} flag" changelog.md > RELEASE_NOTES.md
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          cat RELEASE_NOTES.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -109,7 +116,7 @@ jobs:
           name: ${{ steps.version.outputs.title }}
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ steps.version.outputs.prerelease }}
-          body: ${{ steps.changelog.outputs.notes }}
+          body_path: RELEASE_NOTES.md
           files: ./artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
