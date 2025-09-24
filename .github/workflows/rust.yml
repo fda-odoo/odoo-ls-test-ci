@@ -60,15 +60,16 @@ jobs:
         run: |
           mkdir -p artifacts
           TAG="${GITHUB_REF_NAME}"
+          echo "Tag detected: $TAG"
           BIN_NAME=odoo_ls_server
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}.exe
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${BIN_NAME}.pdb
-            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG}}.zip artifacts/${BIN_NAME}.exe artifacts/${BIN_NAME}.pdb 2>/dev/null || \
-              zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG}}.zip artifacts/${BIN_NAME}.exe
+            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG }}.zip artifacts/${BIN_NAME}.exe artifacts/${BIN_NAME}.pdb 2>/dev/null || \
+              zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG }}.zip artifacts/${BIN_NAME}.exe
           else
             cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}
-            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG}}.zip artifacts/${BIN_NAME}
+            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG }}.zip artifacts/${BIN_NAME}
           fi
 
       - name: Upload artifact
@@ -95,7 +96,7 @@ jobs:
         run: |
           TAG="${GITHUB_REF_NAME}"
           MINOR=$(echo "$TAG" | cut -d. -f2)
-          if [ $((MINOR % 2)) -eq 0 ]; then
+          if [ $((MINOR % 2)) -eq 1 ]; then
             echo "prerelease=true" >> $GITHUB_OUTPUT
             echo "title=$TAG - Beta" >> $GITHUB_OUTPUT
           else
