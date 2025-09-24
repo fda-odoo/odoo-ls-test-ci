@@ -15,9 +15,9 @@ jobs:
     strategy:
       matrix:
         include:
-          #- os: ubuntu-latest
-          #  arch: x86_64
-          #  target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            arch: x86_64
+            target: x86_64-unknown-linux-gnu
           #- os: ubuntu-latest
           #  arch: aarch64
           #  target: aarch64-unknown-linux-gnu
@@ -66,3 +66,36 @@ jobs:
         with:
           name: ${{ matrix.target }}
           path: artifacts/*
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Extract version info
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          MINOR=$(echo "$TAG" | cut -d. -f2)
+          if [ $((MINOR % 2)) -eq 0 ]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+            echo "title=$TAG - Beta" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+            echo "title=$TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.title }}
+          tag_name: ${{ github.ref_name }}
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          files: ./artifacts/**/*.{zip,tar.gz}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
