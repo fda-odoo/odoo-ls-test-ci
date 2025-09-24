@@ -65,11 +65,11 @@ jobs:
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}.exe
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${BIN_NAME}.pdb
-            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG }}.zip artifacts/${BIN_NAME}.exe artifacts/${BIN_NAME}.pdb 2>/dev/null || \
-              zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG }}.zip artifacts/${BIN_NAME}.exe
+            zip -j artifacts/odoo-${{ matrix.name }}-${TAG}.zip artifacts/${BIN_NAME}.exe artifacts/${BIN_NAME}.pdb 2>/dev/null || \
+              zip -j artifacts/odoo-${{ matrix.name }}-${TAG}.zip artifacts/${BIN_NAME}.exe
           else
             cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}
-            zip -j artifacts/odoo-${{ matrix.name }}-${{ TAG }}.zip artifacts/${BIN_NAME}
+            zip -j artifacts/odoo-${{ matrix.name }}-${TAG}.zip artifacts/${BIN_NAME}
           fi
 
       - name: Upload artifact
