@@ -46,6 +46,7 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Build
+        working-directory: server
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Package binary
@@ -54,9 +55,9 @@ jobs:
           mkdir -p artifacts
           BIN_NAME=$(basename $(pwd))
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            cp target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}-${{ matrix.target }}.exe
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${BIN_NAME}-${{ matrix.target }}.exe
           else
-            cp target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}-${{ matrix.target }}
+            cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${BIN_NAME}-${{ matrix.target }}
           fi
 
       - name: Upload artifact
