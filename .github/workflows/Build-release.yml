@@ -153,6 +153,9 @@ jobs:
           for dir in artifacts/*; do
             [ -d "$dir" ] || continue
             name=$(basename "$dir")
+            if [ "$name" = "config_schema" ]; then
+              continue
+            fi
             TAG="${GITHUB_REF_NAME}"
             zip -j artifacts/odoo-${name}-${TAG}.zip $dir/*
           done
