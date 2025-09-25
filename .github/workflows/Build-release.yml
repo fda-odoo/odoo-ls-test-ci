@@ -98,7 +98,7 @@ jobs:
             cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${{ matrix.name }}/
           fi
           if [[ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]]; then
-            cp server/config_schema.json artifacts/config_schema.json
+            cp server/config_schema.json artifacts/
           fi
         continue-on-error: false
 
@@ -157,7 +157,9 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ steps.version.outputs.prerelease }}
           body_path: RELEASE_NOTES.md
-          files: ./artifacts/*.zip,./artifacts/*.json
+          files: |
+            ./artifacts/*.zip
+            ./artifacts/config_schema.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
