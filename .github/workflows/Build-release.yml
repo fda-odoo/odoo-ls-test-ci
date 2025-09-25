@@ -157,7 +157,14 @@ jobs:
               continue
             fi
             TAG="${GITHUB_REF_NAME}"
-            zip -j artifacts/odoo-${name}-${TAG}.zip $dir/*
+            case "$name" in
+              odoo-win32-*)
+                zip -j artifacts/odoo-${name}-${TAG}.zip "$dir"/*
+                ;;
+              *)        # tar.gz to keep permissions
+                tar -czf artifacts/odoo-${name}-${TAG}.tar.gz -C "$dir" .
+                ;;
+            esac
           done
 
       - name: Create Release
@@ -169,6 +176,7 @@ jobs:
           body_path: RELEASE_NOTES.md
           files: |
             ./artifacts/*.zip
+            ./artifacts/*.tar.gz
             ./artifacts/config_schema/config_schema.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
