@@ -169,7 +169,7 @@ jobs:
           body_path: RELEASE_NOTES.md
           files: |
             ./artifacts/*.zip
-            ./artifacts/config_schema.json
+            ./artifacts/config_schema/config_schema.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
