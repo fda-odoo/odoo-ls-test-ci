@@ -81,6 +81,11 @@ jobs:
         working-directory: server
         run: cargo build --bin odoo_ls_server --release --target ${{ matrix.target }}
 
+      - name: Build schema
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        working-directory: server
+        run: cargo build --bin print_config_schema --release --target ${{ matrix.target }}
+
       - name: Upload binary
         shell: bash
         run: |
