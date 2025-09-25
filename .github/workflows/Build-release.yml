@@ -15,10 +15,10 @@ jobs:
     strategy:
       matrix:
         include:
-          #- os: ubuntu-latest
-          #  arch: x86_64
-          #  name: linux-x86_64
-          #  target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            arch: x86_64
+            name: linux-x86_64
+            target: x86_64-unknown-linux-gnu
           #- os: ubuntu-latest
           #  arch: aarch64
           #  name: linux-aarch64
@@ -27,10 +27,10 @@ jobs:
           #  arch: x86_64
           #  name: alpine-x86_64
           #  target: x86_64-unknown-linux-musl
-          - os: ubuntu-latest
-            arch: aarch64
-            name: alpine-aarch64
-            target: aarch64-unknown-linux-musl
+          #- os: ubuntu-latest
+          #  arch: aarch64
+          #  name: alpine-aarch64
+          #  target: aarch64-unknown-linux-musl
           #- os: macos-latest
           #  arch: x86_64
           #  name: darwin-x86_64
@@ -97,13 +97,16 @@ jobs:
           else
             cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${{ matrix.name }}/
           fi
+          if [[ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]]; then
+            cp server/config_schema.json artifacts/config_schema.json
+          fi
         continue-on-error: false
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
-          path: artifacts/${{ matrix.name }}/*
+          path: artifacts/*
 
   release:
     name: Create GitHub Release
@@ -154,7 +157,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           prerelease: ${{ steps.version.outputs.prerelease }}
           body_path: RELEASE_NOTES.md
-          files: ./artifacts/*.zip
+          files: ./artifacts/*.zip,./artifacts/*.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
