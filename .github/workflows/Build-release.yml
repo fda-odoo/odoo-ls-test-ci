@@ -95,7 +95,7 @@ jobs:
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.exe artifacts/${{ matrix.name }}/
             cp server/target/${{ matrix.target }}/release/${BIN_NAME}.pdb artifacts/${{ matrix.name }}/ || true
           else
-            cp server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${{ matrix.name }}/
+            cp -p server/target/${{ matrix.target }}/release/${BIN_NAME} artifacts/${{ matrix.name }}/
           fi
           if [[ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]]; then
             cp server/config_schema.json artifacts/
