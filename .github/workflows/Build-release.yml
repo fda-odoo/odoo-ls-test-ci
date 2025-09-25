@@ -102,11 +102,18 @@ jobs:
           fi
         continue-on-error: false
 
-      - name: Upload artifact
+      - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
-          path: artifacts/*
+          path: artifacts/${{ matrix.name }}
+      
+      - name: Upload config schema
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        uses: actions/upload-artifact@v4
+        with:
+          name: config_schema
+          path: artifacts/config_schema.json
 
   release:
     name: Create GitHub Release
