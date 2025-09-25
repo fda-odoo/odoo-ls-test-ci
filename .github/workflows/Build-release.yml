@@ -147,6 +147,22 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           awk "/^## \\[1.0.1\\]/ {flag=1; next} /^## \\[/ {flag=0} flag {print}" changelog.md > RELEASE_NOTES.md
 
+      - name: Ensure executables have +x
+        shell: bash
+        run: |
+          for dir in artifacts/*; do
+            [ -d "$dir" ] || continue
+            for file in "$dir"/*; do
+              case "$file" in
+                *.exe|*.pdb|*.json|*.zip) 
+                  ;;
+                *)
+                  chmod +x "$file"
+                  ;;
+              esac
+            done
+          done
+
       - name: Zip all artifacts
         shell: bash
         run: |
