@@ -15,19 +15,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             arch: x86_64
             name: linux-x86_64
             target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             arch: aarch64
             name: linux-aarch64
             target: aarch64-unknown-linux-gnu
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             arch: x86_64
             name: alpine-x86_64
             target: x86_64-unknown-linux-musl
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             arch: aarch64
             name: alpine-aarch64
             target: aarch64-unknown-linux-musl
